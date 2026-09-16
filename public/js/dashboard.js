@@ -22,6 +22,8 @@ async function init() {
     loadAISettings();
   }
 
+  startMarketTicker();
+
   loadProfileCompany();
   await loadOverview();
   await loadInvoices();
@@ -70,6 +72,115 @@ async function loadOverview() {
     <div class="card"><div class="label">Total Expenses</div><div class="value">$${fmt(totalExpenses)}</div></div>
     <div class="card"><div class="label">Net Profit</div><div class="value">$${fmt(totalProfit)}</div></div>
   `;
+
+  renderRevenueChart(records);
+}
+
+// ---------------------------------------------------------------------------
+// Overview chart (Chart.js, rendered from the same scoped records as the table)
+// ---------------------------------------------------------------------------
+
+let revenueChartInstance = null;
+
+function renderRevenueChart(records) {
+  const canvas = document.getElementById("revenue-chart");
+  if (!canvas || typeof Chart === "undefined") return;
+
+  if (revenueChartInstance) {
+    revenueChartInstance.destroy();
+  }
+
+  revenueChartInstance = new Chart(canvas, {
+    type: "line",
+    data: {
+      labels: records.map((r) => r.month),
+      datasets: [
+        {
+          label: "Revenue",
+          data: records.map((r) => r.revenue),
+          borderColor: "#2f7fc1",
+          backgroundColor: "rgba(47,127,193,0.15)",
+          fill: true,
+          tension: 0.35,
+        },
+        {
+          label: "Expenses",
+          data: records.map((r) => r.expenses),
+          borderColor: "#c0392b",
+          backgroundColor: "rgba(192,57,43,0.08)",
+          fill: true,
+          tension: 0.35,
+        },
+        {
+          label: "Profit",
+          data: records.map((r) => r.profit),
+          borderColor: "#1e8e5a",
+          backgroundColor: "rgba(30,142,90,0.12)",
+          fill: true,
+          tension: 0.35,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: "bottom", labels: { boxWidth: 12 } } },
+      scales: { y: { ticks: { callback: (v) => "$" + Number(v).toLocaleString() } } },
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Live Market Watch ticker - simulated client-side only, purely decorative.
+// Not backed by any API - never carries real or per-user data.
+// ---------------------------------------------------------------------------
+
+const TICKER_SEED = [
+  { symbol: "VFX", name: "Ventify Finance", price: 128.44 },
+  { symbol: "NRVX", name: "Norvex Logistics", price: 76.10 },
+  { symbol: "BFA", name: "Brightfield Agro", price: 42.85 },
+  { symbol: "SEP", name: "Solara Energy Partners", price: 210.33 },
+  { symbol: "HPG", name: "Hallmark Print Group", price: 18.92 },
+  { symbol: "CRM", name: "Cobalt Ridge Mining", price: 64.77 },
+  { symbol: "UCS", name: "Union Coastal Shipping", price: 55.20 },
+  { symbol: "APX", name: "Aldergate Pharmaceuticals", price: 301.15 },
+  { symbol: "NRG", name: "Northlane Retail Group", price: 29.60 },
+  { symbol: "FST", name: "Ferrovia Steelworks", price: 88.40 },
+];
+
+let tickerState = TICKER_SEED.map((t) => ({ ...t, prevPrice: t.price }));
+
+function renderTicker() {
+  const tbody = document.querySelector("#ticker-table tbody");
+  if (!tbody) return;
+  tbody.innerHTML = tickerState
+    .map((t) => {
+      const change = t.price - t.prevPrice;
+      const pct = t.prevPrice ? (change / t.prevPrice) * 100 : 0;
+      const dir = change > 0.001 ? "up" : change < -0.001 ? "down" : "flat";
+      const arrow = dir === "up" ? "▲" : dir === "down" ? "▼" : "–";
+      return `<tr>
+        <td>${t.symbol}</td>
+        <td>${t.name}</td>
+        <td>$${t.price.toFixed(2)}</td>
+        <td class="ticker-${dir}">${arrow} ${Math.abs(pct).toFixed(2)}%</td>
+      </tr>`;
+    })
+    .join("");
+}
+
+function tickMarket() {
+  tickerState = tickerState.map((t) => {
+    const drift = (Math.random() - 0.5) * (t.price * 0.02);
+    const newPrice = Math.max(1, Math.round((t.price + drift) * 100) / 100);
+    return { ...t, prevPrice: t.price, price: newPrice };
+  });
+  renderTicker();
+}
+
+function startMarketTicker() {
+  renderTicker();
+  setInterval(tickMarket, 2000);
 }
 
 async function loadInvoices() {
@@ -393,7 +504,21 @@ document.addEventListener("click", (e) => {
 // ---------------------------------------------------------------------------
 
 document.getElementById("chat-toggle").addEventListener("click", () => {
-  document.getElementById("chat-widget").classList.toggle("collapsed");
+  const widget = document.getElementById("chat-widget");
+  if (widget.classList.contains("fullpage")) {
+    // Clicking the header while in full-page mode just steps back to the
+    // normal floating panel, not all the way to the collapsed bubble.
+    widget.classList.remove("fullpage");
+    return;
+  }
+  widget.classList.toggle("collapsed");
+});
+
+document.getElementById("chat-expand-btn").addEventListener("click", (e) => {
+  e.stopPropagation();
+  const widget = document.getElementById("chat-widget");
+  widget.classList.remove("collapsed");
+  widget.classList.toggle("fullpage");
 });
 
 document.getElementById("chat-form").addEventListener("submit", async (e) => {

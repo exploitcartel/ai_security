@@ -110,10 +110,25 @@
 
       <section id="view-overview" class="view">
         <div class="card-grid" id="summary-cards"></div>
+
         <div class="panel">
           <h3>Monthly Financial Overview</h3>
+          <div class="chart-wrap">
+            <canvas id="revenue-chart" height="90"></canvas>
+          </div>
           <table class="data-table" id="overview-table">
             <thead><tr><th>Month</th><th>Revenue</th><th>Expenses</th><th>Profit</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="panel ticker-panel">
+          <div class="panel-header">
+            <h3>📈 Live Market Watch</h3>
+            <span class="muted ticker-note">Simulated feed — for demo flavor only, not real data</span>
+          </div>
+          <table class="data-table" id="ticker-table">
+            <thead><tr><th>Symbol</th><th>Company</th><th>Price</th><th>Change</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
@@ -261,8 +276,14 @@
   <!-- AI Assistant widget -->
   <div id="chat-widget" class="chat-widget collapsed">
     <div class="chat-header" id="chat-toggle">
-      <span>Ventify AI Assistant</span>
-      <span id="chat-caret">▲</span>
+      <span class="chat-header-left">
+        <span class="chat-bot-icon">🤖</span>
+        <span class="chat-header-text">Ventify AI Assistant</span>
+      </span>
+      <span class="chat-header-actions">
+        <button type="button" class="chat-icon-btn" id="chat-expand-btn" title="Expand to full page">⛶</button>
+        <span id="chat-caret">▲</span>
+      </span>
     </div>
     <div class="chat-body" id="chat-body">
       <div class="chat-messages" id="chat-messages">
@@ -275,6 +296,7 @@
     </div>
   </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="js/dashboard.js"></script>
 </body>
 </html>

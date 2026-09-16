@@ -154,7 +154,7 @@ body { margin: 0; background: var(--blue-50); color: #1c2b36; }
 .card .label { font-size: 12px; color: var(--gray-600); text-transform: uppercase; letter-spacing: 0.04em; }
 .card .value { font-size: 24px; font-weight: 700; color: var(--blue-900); margin-top: 6px; }
 
-.panel { background: white; border: 1px solid var(--gray-300); border-radius: 12px; padding: 20px; }
+.panel { background: white; border: 1px solid var(--gray-300); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
 .panel.narrow { max-width: 420px; }
 .panel h3 { margin-top: 0; color: var(--blue-900); }
 .muted { color: var(--gray-600); font-size: 14px; }
@@ -194,7 +194,7 @@ body { margin: 0; background: var(--blue-50); color: #1c2b36; }
 .badge-pending, .badge-processing, .badge-in_transit { background: #fdf2e0; color: #b8860b; }
 .badge-overdue, .badge-cancelled, .badge-debit { background: #fbe9e7; color: #c0392b; }
 
-.panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; gap: 12px; }
 .panel-header h3 { margin: 0; }
 
 .month-filter {
@@ -218,19 +218,52 @@ body { margin: 0; background: var(--blue-50); color: #1c2b36; }
 
 .hidden { display: none; }
 
+/* ---------- Overview chart + market ticker ---------- */
+.chart-wrap { margin: 10px 0 4px; max-height: 260px; position: relative; }
+.ticker-panel .panel-header { margin-bottom: 2px; }
+.ticker-note { font-size: 11px; white-space: nowrap; }
+.ticker-up { color: var(--success); font-weight: 700; }
+.ticker-down { color: var(--danger); font-weight: 700; }
+.ticker-flat { color: var(--gray-600); font-weight: 700; }
+#ticker-table td:first-child { font-family: "SFMono-Regular", Consolas, monospace; letter-spacing: 0.03em; }
+
 /* ---------- Chat widget ---------- */
 .chat-widget {
   position: fixed; bottom: 20px; right: 20px; width: 320px;
-  background: white; border-radius: 14px; box-shadow: 0 10px 30px rgba(11,61,102,0.25);
+  background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(11,61,102,0.25);
   border: 1px solid var(--gray-300); overflow: hidden;
+  transition: width 0.2s ease, height 0.2s ease, border-radius 0.2s ease,
+    top 0.2s ease, left 0.2s ease, right 0.2s ease, bottom 0.2s ease;
+  z-index: 100;
 }
 .chat-header {
   background: var(--blue-700); color: white; padding: 12px 16px;
   display: flex; justify-content: space-between; align-items: center;
   font-size: 14px; font-weight: 600; cursor: pointer;
 }
+.chat-header-left { display: flex; align-items: center; gap: 8px; }
+.chat-bot-icon { font-size: 18px; line-height: 1; }
+.chat-header-actions { display: flex; align-items: center; gap: 10px; }
+.chat-icon-btn {
+  background: rgba(255,255,255,0.15); border: none; color: white; width: 24px; height: 24px;
+  border-radius: 6px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.chat-icon-btn:hover { background: rgba(255,255,255,0.3); }
+
+/* Collapsed = spherical floating button, icon only */
+.chat-widget.collapsed {
+  width: 64px; height: 64px; border-radius: 50%;
+  box-shadow: 0 6px 20px rgba(11,61,102,0.4);
+}
+.chat-widget.collapsed .chat-header {
+  width: 64px; height: 64px; padding: 0; justify-content: center; border-radius: 50%;
+}
+.chat-widget.collapsed .chat-header-text,
+.chat-widget.collapsed .chat-header-actions,
 .chat-widget.collapsed .chat-body { display: none; }
+.chat-widget.collapsed .chat-bot-icon { font-size: 30px; }
 .chat-widget.collapsed #chat-caret { transform: rotate(180deg); }
+
 .chat-body { display: flex; flex-direction: column; height: 380px; }
 .chat-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
 .msg { padding: 8px 12px; border-radius: 10px; font-size: 13px; max-width: 85%; line-height: 1.4; }
@@ -244,3 +277,12 @@ body { margin: 0; background: var(--blue-50); color: #1c2b36; }
 .chat-table { width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 12px; }
 .chat-table th, .chat-table td { border: 1px solid var(--gray-300); padding: 4px 6px; text-align: left; }
 .chat-table th { background: var(--blue-50); }
+
+/* Optional full-page mode, toggled by the expand button */
+.chat-widget.fullpage {
+  top: 20px; left: 20px; right: 20px; bottom: 20px;
+  width: auto; height: auto; border-radius: 14px;
+}
+.chat-widget.fullpage .chat-body { height: calc(100% - 50px); }
+.chat-widget.fullpage .chat-messages { padding: 24px; }
+.chat-widget.fullpage .msg { max-width: 60%; font-size: 14px; }
