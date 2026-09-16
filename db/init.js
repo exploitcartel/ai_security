@@ -410,7 +410,7 @@ function createUser(username, fullName, role, clientId, companyName) {
   credentials.push({ username, role, companyName: companyName || "", password });
 }
 
-createUser("admin", "Alma Krasniqi", "admin", null);
+createUser("admin", "System Administrator", "admin", null);
 createUser("dev.ops", "Genti Hoxha", "admin", null);
 createUser("j.morrow", "Julia Morrow", "financial_agent", null);
 createUser("t.reyes", "Tomas Reyes", "financial_agent", null);
