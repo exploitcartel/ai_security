@@ -18,9 +18,15 @@ const PORT = process.env.PORT || 3000;
 // Allows the attacker-controlled origin (e.g. a page served from Kali on
 // attacker.org:8080) to make credentialed requests against this API. No
 // Content-Security-Policy, no Referrer-Policy, no helmet-style hardening.
+//
+// NOTE: browsers omit the port from the Origin header when it's the
+// scheme's default port (80 for http, 443 for https). If PORT=80, the
+// browser sends "http://ventifyfinance.org" with no ":80" - the entries
+// below match that. If you run on a non-default port instead, add the
+// ":PORT" suffix back to the ventifyfinance.org entry.
 const ALLOWED_ORIGINS = [
   "http://attacker.org:8080",
-  "http://ventifyfinance.org:3000",
+  "http://ventifyfinance.org",
   "http://localhost:3000",
 ];
 
