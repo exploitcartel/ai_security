@@ -181,14 +181,54 @@ http://172.20.10.5:3000
 5. Replay a winning payload manually in the chat widget — the assistant
    reveals another company's revenue, salaries, or warehouse valuation, and
    summarizes it for you.
-6. (Optional, narrated rather than executed live) Explain how a real-world
-   version of this chain would start even earlier: a malicious browser
-   extension harvesting the non-HttpOnly `SESSIONID` cookie, referencing
-   real, publicly documented cases (e.g. the January 2026 Chrome extensions
-   targeting Workday/NetSuite/SAP SuccessFactors, and the ChatGPT
-   session-token-stealing extension campaigns).
+6. Now show how a real-world version of this chain starts even earlier:
+   the lab browser extension harvests the non-HttpOnly `SESSIONID` cookie
+   from the victim's machine and hands it to you on Kali before you ever
+   touch the AI layer — see **step 7** below for the exact walkthrough.
+   Reference real, publicly documented cases while you narrate (e.g. the
+   January 2026 Chrome extensions targeting Workday/NetSuite/SAP
+   SuccessFactors, and the ChatGPT session-token-stealing extension
+   campaigns).
 
-## 7. Running garak against the lab
+## 7. Running the browser-extension / collector demo
+
+This is the "malicious browser extension" half of the session-hijacking
+story — `kali/meeting-notes-lab-extension/` (the extension source) and
+`kali/collector.py` (the listener that receives what it steals).
+
+**On Kali (172.20.10.7) — start the collector:**
+
+```bash
+python3 kali/collector.py
+```
+
+Listens on `0.0.0.0:8080` and prints whatever gets POSTed to `/collect`.
+
+**On the Windows victim machine (172.20.10.6) — load the extension in Firefox:**
+
+1. Open `about:debugging#/runtime/this-firefox`
+2. Click **Load Temporary Add-on…**
+3. Select `kali/meeting-notes-lab-extension/manifest.json`
+
+It only asks for `cookies`/`tabs` permission scoped to the lab hosts
+(`172.20.10.5`, `portal.lab.local`) — nothing broader.
+
+**Trigger it:** log in normally at `http://172.20.10.5:3000` as `m.durrant`.
+The moment that tab finishes loading, the extension reads the `SESSIONID`
+cookie and POSTs it to `http://172.20.10.7:8080/collect`. Watch it land in
+the collector's terminal on Kali, in real time.
+
+**Hijack the session:** take the `sessionid` value the collector printed and
+set it as the `SESSIONID` cookie in a browser (or `curl -H`) on Kali — you
+now have Marcus's live session, no password needed, from a machine that
+never logged in. This is the same cookie that `garak/rest_config.json`
+expects in step 8, so it doubles as your setup for the AI-authorization
+attack too.
+
+Temporary add-ons are removed when Firefox restarts — reload it each time
+you reset the lab environment.
+
+## 8. Running garak against the lab
 
 Log in via curl to get a session token (password from `CREDENTIALS.local.txt`):
 
@@ -216,7 +256,7 @@ with a `clientId` other than Marcus's own (client_id 1). The chat API
 response includes `functionCalled` and `functionArgs` in its JSON for
 exactly this reason.
 
-## 8. Resetting the lab
+## 9. Resetting the lab
 
 ```bash
 npm run seed
@@ -230,9 +270,12 @@ sessions (in-memory store).
 
 ## Notes / things intentionally left out of this lab
 
-- No malicious browser extension is included or implemented. Present that
-  part of the narrative as a slide referencing real, publicly documented
-  incidents rather than demonstrating it live.
+- The browser extension (`kali/meeting-notes-lab-extension/`) and collector
+  (`kali/collector.py`) are functional cookie-theft tooling, scoped to the
+  lab hosts only. Keep them strictly on your isolated lab network — never
+  install the extension in a browser that also visits real sites, and never
+  point `COLLECTOR`/the manifest's host permissions at anything but
+  `172.20.10.x` / `*.lab.local`.
 - No monitoring/detection dashboard is built yet — `chat_logs` captures raw
   data (message, function called, function args, response) but there's no
   alerting or visualization layer yet. That's intentional — meant to be the
