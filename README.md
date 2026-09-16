@@ -6,6 +6,37 @@ agents. This is a **local-only educational lab**. Do not expose it to the
 internet, do not point it at real data, and do not reuse this session/CORS
 design in anything real.
 
+## Network setup — do this first, on every machine, every time the network changes
+
+This lab uses two hostnames instead of hardcoded IPs, because private lab
+IPs change between networks/venues. Nothing in the code ever needs to
+change when that happens — only local hostname resolution:
+
+- **`ventifyfinance.org`** → the Ubuntu machine running the Ventify Finance
+  server
+- **`attacker.org`** → the Kali machine running the collector
+
+**These are not real, internet-resolvable domains.** They only work because
+each machine's hosts file is told to resolve them locally, inside your
+isolated lab network. On **every** machine involved (Ubuntu/server, the
+Windows victim browser, and Kali), add both entries, pointing at whatever
+the actual current LAN IPs are on that network:
+
+```
+<ubuntu-server-ip>   ventifyfinance.org
+<kali-ip>             attacker.org
+```
+
+- Linux (Ubuntu/Kali): `/etc/hosts` (edit with `sudo`)
+- Windows: `C:\Windows\System32\drivers\etc\hosts` (edit Notepad as
+  Administrator)
+
+If a machine's hosts file is missing either entry: the browser gives a DNS
+error opening the app, or the extension silently can't reach the collector
+(`[LAB] collector unreachable` in the console). Redo this step — updating
+the two IPs in the hosts file on each machine — every time you move the lab
+to a different network; nothing else changes.
+
 ## What Ventify Finance "is" (the story)
 
 Ventify Finance is a bookkeeping/accounting service provider: it manages
@@ -58,7 +89,7 @@ of a hardened session library:
 - **No CSRF token, no IP/User-Agent binding, no session rotation after
   login, no MFA, no CAPTCHA, no rate limiting.**
 - **CORS is deliberately permissive** (`server.js`): the allow-list includes
-  `http://172.20.10.7:8080` (a page you can serve from Kali) with
+  `http://attacker.org:8080` (a page you can serve from Kali) with
   `credentials: true`, and no `Content-Security-Policy` or
   `Referrer-Policy` headers are set at all.
 
@@ -155,11 +186,12 @@ the seed script drops and rebuilds.
 npm start
 ```
 
-Server listens on `0.0.0.0:3000`. From Kali (172.20.10.7) or anywhere else
-on the private network (172.20.10.x), open:
+Server listens on `0.0.0.0:3000`. From Kali (`attacker.org`) or anywhere
+else on the lab network (once the hosts file is set up — see "Network
+setup" above), open:
 
 ```
-http://172.20.10.5:3000
+http://ventifyfinance.org:3000
 ```
 
 ## 6. Demo script
@@ -196,7 +228,7 @@ This is the "malicious browser extension" half of the session-hijacking
 story — `kali/meeting-notes-lab-extension/` (the extension source) and
 `kali/collector.py` (the listener that receives what it steals).
 
-**On Kali (172.20.10.7) — start the collector:**
+**On Kali (`attacker.org`) — start the collector:**
 
 ```bash
 python3 kali/collector.py
@@ -204,7 +236,7 @@ python3 kali/collector.py
 
 Listens on `0.0.0.0:8080` and prints whatever gets POSTed to `/collect`.
 
-**On the Windows victim machine (172.20.10.6) — load the extension in Firefox.**
+**On the Windows victim machine — load the extension in Firefox.**
 Two ways to do this, depending on how "installed" you want it to look.
 
 **Method A — Temporary Add-on (quick, any Firefox, lost on restart):**
@@ -251,12 +283,12 @@ should appear in the list.
   an error there instead.
 
 It only asks for `cookies`/`tabs` permission scoped to the lab hosts
-(`172.20.10.5`, `portal.lab.local`) — nothing broader, with either method.
+(`ventifyfinance.org`, `attacker.org`) — nothing broader, with either method.
 
-**Trigger it:** log in normally at `http://172.20.10.5:3000` as `m.durrant`.
-The moment that tab finishes loading, the extension reads the `SESSIONID`
-cookie and POSTs it to `http://172.20.10.7:8080/collect`. Watch it land in
-the collector's terminal on Kali, in real time.
+**Trigger it:** log in normally at `http://ventifyfinance.org:3000` as
+`m.durrant`. The moment that tab finishes loading, the extension reads the
+`SESSIONID` cookie and POSTs it to `http://attacker.org:8080/collect`.
+Watch it land in the collector's terminal on Kali, in real time.
 
 **Hijack the session:** take the `sessionid` value the collector printed and
 set it as the `SESSIONID` cookie in a browser (or `curl -H`) on Kali — you
@@ -274,7 +306,7 @@ restarts until you remove it manually.
 Log in via curl to get a session token (password from `CREDENTIALS.local.txt`):
 
 ```bash
-curl -i -X POST http://172.20.10.5:3000/api/auth/login \
+curl -i -X POST http://ventifyfinance.org:3000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"m.durrant","password":"<m.durrant password from CREDENTIALS.local.txt>"}'
 ```
@@ -315,8 +347,11 @@ sessions (in-memory store).
   (`kali/collector.py`) are functional cookie-theft tooling, scoped to the
   lab hosts only. Keep them strictly on your isolated lab network — never
   install the extension in a browser that also visits real sites, and never
-  point `COLLECTOR`/the manifest's host permissions at anything but
-  `172.20.10.x` / `*.lab.local`.
+  point `COLLECTOR`/the manifest's host permissions, or either hosts-file
+  entry, at anything outside your isolated lab network. `ventifyfinance.org`
+  and `attacker.org` are not real domains you control on the public
+  internet — they only resolve inside the lab because you put them in each
+  machine's hosts file (see "Network setup" above).
 - No monitoring/detection dashboard is built yet — `chat_logs` captures raw
   data (message, function called, function args, response) but there's no
   alerting or visualization layer yet. That's intentional — meant to be the

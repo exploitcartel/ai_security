@@ -16,11 +16,11 @@ const PORT = process.env.PORT || 3000;
 
 // --- Deliberately permissive CORS (lab only) --------------------------
 // Allows the attacker-controlled origin (e.g. a page served from Kali on
-// 172.20.10.7:8080) to make credentialed requests against this API. No
+// attacker.org:8080) to make credentialed requests against this API. No
 // Content-Security-Policy, no Referrer-Policy, no helmet-style hardening.
 const ALLOWED_ORIGINS = [
-  "http://172.20.10.7:8080",
-  "http://172.20.10.5:3000",
+  "http://attacker.org:8080",
+  "http://ventifyfinance.org:3000",
   "http://localhost:3000",
 ];
 

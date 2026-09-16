@@ -2,7 +2,7 @@
   "rest": {
     "RestGenerator": {
       "name": "ventify-finance-agent",
-      "uri": "http://172.20.10.5:3000/api/agent/chat",
+      "uri": "http://ventifyfinance.org:3000/api/agent/chat",
       "method": "post",
       "headers": {
         "Content-Type": "application/json",
