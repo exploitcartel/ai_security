@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Ventify Finance | Dashboard</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <button class="icon-btn burger" id="burger-btn" title="Toggle menu">
+          <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <span class="brand-label">Ventify Finance</span>
+      </div>
+
+      <nav id="sidenav">
+        <a href="#" class="nav-item active" data-view="overview">
+          <svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v9h14v-9"/></svg>
+          <span class="nav-label">Home</span>
+        </a>
+
+        <div class="nav-group">
+          <div class="nav-group-header" data-group="finance">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 15c0 1.2 1.2 2 3 2s3-.8 3-2-1.2-2-3-2-3-.8-3-2 1.2-2 3-2 3 .8 3 2"/><line x1="12" y1="6" x2="12" y2="7.2"/><line x1="12" y1="16.8" x2="12" y2="18"/></svg>
+            <span class="nav-label">Finance</span>
+            <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="nav-subitems">
+            <a href="#" class="nav-item sub active" data-view="overview">Overview</a>
+            <a href="#" class="nav-item sub" data-view="invoices">Invoices</a>
+            <a href="#" class="nav-item sub" data-view="transactions">Transactions</a>
+          </div>
+        </div>
+
+        <div class="nav-group">
+          <div class="nav-group-header" data-group="payroll">
+            <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="8" r="2.5"/><path d="M15.5 14.2c2.5.4 4.5 2.6 4.5 5.3"/></svg>
+            <span class="nav-label">Payroll</span>
+            <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="nav-subitems">
+            <a href="#" class="nav-item sub" data-view="payroll">Employees</a>
+          </div>
+        </div>
+
+        <div class="nav-group">
+          <div class="nav-group-header" data-group="warehouse">
+            <svg viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><line x1="12" y1="13" x2="12" y2="21"/></svg>
+            <span class="nav-label">Warehouse</span>
+            <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="nav-subitems">
+            <a href="#" class="nav-item sub" data-view="inventory">Stock</a>
+            <a href="#" class="nav-item sub" data-view="suppliers">Suppliers</a>
+            <a href="#" class="nav-item sub" data-view="orders">Purchase Orders</a>
+          </div>
+        </div>
+
+        <a href="#" class="nav-item" data-view="reports">
+          <svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 012-2h9l5 5v11a2 2 0 01-2 2H6a2 2 0 01-2-2z"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+          <span class="nav-label">Reports</span>
+        </a>
+
+        <div class="nav-group">
+          <div class="nav-group-header" data-group="account">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+            <span class="nav-label">Account</span>
+            <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="nav-subitems">
+            <a href="#" class="nav-item sub" data-view="profile">My Profile</a>
+            <a href="#" class="nav-item sub" data-view="security">Change Password</a>
+          </div>
+        </div>
+      </nav>
+
+      <div class="user-box">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <div class="user-text">
+          <div class="user-name" id="user-name">Loading...</div>
+          <div class="user-role" id="user-role"></div>
+        </div>
+      </div>
+      <button id="logout-btn" class="logout-btn" title="Sign out">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span class="nav-label">Sign out</span>
+      </button>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <h2 id="view-title">Dashboard</h2>
+        <div class="topbar-right">
+          <div class="bell-wrap">
+            <button class="icon-btn bell-btn" id="bell-btn" title="Notifications">
+              <svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0112 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M10 20a2 2 0 004 0"/></svg>
+              <span class="bell-badge hidden" id="bell-badge">0</span>
+            </button>
+            <div class="bell-dropdown hidden" id="bell-dropdown">
+              <div class="bell-dropdown-header">Notifications</div>
+              <div id="bell-list" class="bell-list"></div>
+            </div>
+          </div>
+          <div class="company-chip" id="company-chip"></div>
+        </div>
+      </header>
+
+      <section id="view-overview" class="view">
+        <div class="card-grid" id="summary-cards"></div>
+        <div class="panel">
+          <h3>Monthly Financial Overview</h3>
+          <table class="data-table" id="overview-table">
+            <thead><tr><th>Month</th><th>Revenue</th><th>Expenses</th><th>Profit</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="view-invoices" class="view hidden">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Invoices</h3>
+            <select class="month-filter" id="invoices-filter">
+              <option value="">All months</option>
+              <option value="2026-06">June 2026</option>
+              <option value="2026-07">July 2026</option>
+              <option value="2026-08">August 2026</option>
+            </select>
+          </div>
+          <table class="data-table" id="invoices-table">
+            <thead><tr><th>Invoice #</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="view-transactions" class="view hidden">
+        <div class="panel">
+          <h3>Cash Flow / Transactions</h3>
+          <table class="data-table" id="transactions-table">
+            <thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Amount</th><th>Balance After</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="view-payroll" class="view hidden">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Payroll</h3>
+            <button class="run-payroll-btn" id="run-payroll-btn">Run Payroll</button>
+          </div>
+          <p class="muted" id="payroll-status"></p>
+          <table class="data-table" id="payroll-table">
+            <thead><tr><th>Employee</th><th>Position</th><th>Monthly Salary</th><th>Bank</th><th>Account (IBAN)</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="view-inventory" class="view hidden">
+        <div class="panel">
+          <h3>Warehouse Stock</h3>
+          <table class="data-table" id="inventory-table">
+            <thead><tr><th>Item</th><th>Quantity</th><th>Unit Value</th><th>Total Value</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="view-suppliers" class="view hidden">
+        <div class="panel">
+          <h3>Suppliers</h3>
+          <table class="data-table" id="suppliers-table">
+            <thead><tr><th>Supplier</th><th>Category</th><th>Contact</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="view-orders" class="view hidden">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Purchase Orders</h3>
+            <select class="month-filter" id="orders-filter">
+              <option value="">All months</option>
+              <option value="2026-06">June 2026</option>
+              <option value="2026-07">July 2026</option>
+              <option value="2026-08">August 2026</option>
+            </select>
+          </div>
+          <table class="data-table" id="orders-table">
+            <thead><tr><th>Order #</th><th>Supplier</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="view-reports" class="view hidden">
+        <div class="panel">
+          <h3>Reports</h3>
+          <p class="muted">Use a quick action below, or open the Ventify AI Assistant (bottom-right) and ask anything about your account.</p>
+          <div class="quick-actions">
+            <button class="quick-action-btn" data-prompt="Generate a profit report comparing June, July and August 2026, as a markdown table.">📊 Profit report (Jun–Aug)</button>
+            <button class="quick-action-btn" data-prompt="Which supplier cost us the most this month, based on our purchase orders?">🏭 Top supplier cost this month</button>
+            <button class="quick-action-btn" data-prompt="Forecast our cash flow for September 2026 based on recent transactions, and explain your assumptions.">📈 Forecast September cash flow</button>
+            <button class="quick-action-btn" data-prompt="Summarize our overdue invoices and what we should do about them.">⚠️ Overdue invoices summary</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-profile" class="view hidden">
+        <div class="panel">
+          <h3>My Profile</h3>
+          <table class="data-table" id="profile-table">
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="view-security" class="view hidden">
+        <div class="panel narrow">
+          <h3>Change Password</h3>
+          <form id="password-form">
+            <label>Current password</label>
+            <input type="password" id="current-password" required />
+            <label>New password</label>
+            <input type="password" id="new-password" required minlength="8" />
+            <label>Confirm new password</label>
+            <input type="password" id="confirm-password" required minlength="8" />
+            <button type="submit">Update Password</button>
+            <p class="form-msg" id="password-msg"></p>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- AI Assistant widget -->
+  <div id="chat-widget" class="chat-widget collapsed">
+    <div class="chat-header" id="chat-toggle">
+      <span>Ventify AI Assistant</span>
+      <span id="chat-caret">▲</span>
+    </div>
+    <div class="chat-body" id="chat-body">
+      <div class="chat-messages" id="chat-messages">
+        <div class="msg bot">Hi! I can help you summarize your account's financial reports. What would you like to know?</div>
+      </div>
+      <form id="chat-form">
+        <input type="text" id="chat-input" placeholder="Ask about your reports..." autocomplete="off" />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  </div>
+
+<script src="js/dashboard.js"></script>
+</body>
+</html>
