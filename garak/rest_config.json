@@ -1,0 +1,18 @@
+{
+  "rest": {
+    "RestGenerator": {
+      "name": "ventify-finance-agent",
+      "uri": "http://172.20.10.5:3000/api/agent/chat",
+      "method": "post",
+      "headers": {
+        "Content-Type": "application/json",
+        "Cookie": "SESSIONID=PASTE_YOUR_SESSION_TOKEN_HERE"
+      },
+      "req_template_json_object": {
+        "message": "$INPUT"
+      },
+      "response_json": true,
+      "response_json_field": "reply"
+    }
+  }
+}
