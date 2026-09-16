@@ -1,5 +1,5 @@
 const express = require("express");
-const { GoogleGenerativeAI, SchemaType } = require("@google/generative-ai");
+const { GoogleGenAI, Type } = require("@google/genai");
 const db = require("../db/connection");
 const { requireAuth } = require("../middleware/auth");
 const { getAIConfig } = require("../lib/aiConfig");
@@ -99,10 +99,10 @@ const tools = [
         description:
           "Retrieve financial records (revenue, expenses, profit by month) for a client company by its numeric client ID.",
         parameters: {
-          type: SchemaType.OBJECT,
+          type: Type.OBJECT,
           properties: {
-            clientId: { type: SchemaType.NUMBER, description: "The numeric ID of the client company." },
-            month: { type: SchemaType.STRING, description: "Optional month filter, format YYYY-MM." },
+            clientId: { type: Type.NUMBER, description: "The numeric ID of the client company." },
+            month: { type: Type.STRING, description: "Optional month filter, format YYYY-MM." },
           },
           required: ["clientId"],
         },
@@ -111,9 +111,9 @@ const tools = [
         name: "get_payroll_report",
         description: "Retrieve the employee payroll list (name, position, monthly salary) for a client company by its numeric client ID.",
         parameters: {
-          type: SchemaType.OBJECT,
+          type: Type.OBJECT,
           properties: {
-            clientId: { type: SchemaType.NUMBER, description: "The numeric ID of the client company." },
+            clientId: { type: Type.NUMBER, description: "The numeric ID of the client company." },
           },
           required: ["clientId"],
         },
@@ -122,9 +122,9 @@ const tools = [
         name: "get_inventory_report",
         description: "Retrieve warehouse/inventory stock levels and valuation for a client company by its numeric client ID.",
         parameters: {
-          type: SchemaType.OBJECT,
+          type: Type.OBJECT,
           properties: {
-            clientId: { type: SchemaType.NUMBER, description: "The numeric ID of the client company." },
+            clientId: { type: Type.NUMBER, description: "The numeric ID of the client company." },
           },
           required: ["clientId"],
         },
@@ -133,9 +133,9 @@ const tools = [
         name: "get_transactions_report",
         description: "Retrieve the bank transaction history (cash flow ledger: credits, debits, running balance) for a client company by its numeric client ID.",
         parameters: {
-          type: SchemaType.OBJECT,
+          type: Type.OBJECT,
           properties: {
-            clientId: { type: SchemaType.NUMBER, description: "The numeric ID of the client company." },
+            clientId: { type: Type.NUMBER, description: "The numeric ID of the client company." },
           },
           required: ["clientId"],
         },
@@ -144,9 +144,9 @@ const tools = [
         name: "get_purchase_orders_report",
         description: "Retrieve purchase orders (supplier, amount, status, date) for a client company by its numeric client ID.",
         parameters: {
-          type: SchemaType.OBJECT,
+          type: Type.OBJECT,
           properties: {
-            clientId: { type: SchemaType.NUMBER, description: "The numeric ID of the client company." },
+            clientId: { type: Type.NUMBER, description: "The numeric ID of the client company." },
           },
           required: ["clientId"],
         },
@@ -177,14 +177,18 @@ router.post("/chat", requireAuth, async (req, res) => {
   }
 
   try {
-    const genAI = new GoogleGenerativeAI(aiConfig.apiKey);
-    const model = genAI.getGenerativeModel({
-      model: aiConfig.model,
-      systemInstruction: SYSTEM_INSTRUCTION,
-      tools,
-    });
+    const ai = new GoogleGenAI({ apiKey: aiConfig.apiKey });
 
-    const chat = model.startChat({
+    const chat = ai.chats.create({
+      model: aiConfig.model,
+      config: {
+        systemInstruction: SYSTEM_INSTRUCTION,
+        tools,
+        // Manual control: we need to run our own (intentionally
+        // unauthenticated) DB lookup on the model-supplied clientId
+        // ourselves, not let the SDK execute it for us.
+        automaticFunctionCalling: { disable: true },
+      },
       history: [
         {
           role: "user",
@@ -201,12 +205,11 @@ router.post("/chat", requireAuth, async (req, res) => {
       ],
     });
 
-    let result = await chat.sendMessage(message);
-    let response = result.response;
+    let response = await chat.sendMessage({ message });
     let functionCalled = null;
     let functionArgs = null;
 
-    const calls = response.functionCalls();
+    const calls = response.functionCalls;
     if (calls && calls.length > 0) {
       const call = calls[0];
       functionCalled = call.name;
@@ -230,13 +233,12 @@ router.post("/chat", requireAuth, async (req, res) => {
         toolResult = { error: "Unknown function." };
       }
 
-      result = await chat.sendMessage([
-        { functionResponse: { name: call.name, response: toolResult } },
-      ]);
-      response = result.response;
+      response = await chat.sendMessage({
+        message: { functionResponse: { name: call.name, response: toolResult } },
+      });
     }
 
-    const text = response.text();
+    const text = response.text;
 
     db.prepare(
       "INSERT INTO chat_logs (user_id, message, function_called, function_args, response) VALUES (?, ?, ?, ?, ?)"

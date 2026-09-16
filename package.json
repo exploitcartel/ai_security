@@ -8,7 +8,7 @@
     "seed": "node db/init.js"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.21.0",
+    "@google/genai": "^2.22.0",
     "better-sqlite3": "^11.3.0",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
