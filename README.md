@@ -51,7 +51,7 @@ can see aggregate data across all clients.
 - **Frontend:** Plain HTML/CSS/JS, no build step
 - **AI assistant:** Google Gemini via function calling - provider, model,
   and API key are all configured at runtime from Account → AI Provider (see
-  step 4), defaulting to `gemini-2.5-flash`
+  step 4), defaulting to `gemini-3.6-flash`
 - **Data domains:** financial records (revenue/expenses/profit), invoices,
   payroll (employee names, positions, monthly salaries), and warehouse
   inventory (stock items, quantities, valuations) - one set per client
@@ -173,7 +173,7 @@ itself:
    `CREDENTIALS.local.txt`).
 2. Go to **Account → AI Provider**, paste a Gemini API key (free at
    https://aistudio.google.com/app/apikey), optionally adjust the Model
-   field (defaults to `gemini-2.5-flash`), and save.
+   field (defaults to `gemini-3.6-flash`), and save.
 3. The key and model are written to the `settings` table in `db/ventify.db`
    (which is itself gitignored) and cached in memory by the running server.
    The AI assistant is now live for every logged-in user.
@@ -184,10 +184,12 @@ the key is set. Re-seeding the database (`npm run seed`) does **not** clear
 a previously saved key, since `settings` is a separate table from the one
 the seed script drops and rebuilds.
 
-If Google retires the configured model (as happened to `gemini-1.5-flash`),
-the chat replies with a generic "unavailable" error - check the server
-terminal for the real `Agent error:` line, then just update the Model field
-in Account → AI Provider. No code change or redeploy needed.
+If Google retires the configured model (as has already happened twice in
+this lab's life - `gemini-1.5-flash`, then `gemini-2.5-flash`), the chat
+replies with a generic "unavailable" error - check the server terminal for
+the real `Agent error:` line, then just update the Model field in
+Account → AI Provider to whatever model name Google's error message points
+to. No code change or redeploy needed.
 
 ## 5. Run
 
