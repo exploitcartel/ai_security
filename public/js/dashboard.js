@@ -304,8 +304,10 @@ async function loadAISettings() {
     }
     const data = await res.json();
     document.getElementById("ai-provider").value = data.provider || "gemini";
+    document.getElementById("ai-model").value = data.model || data.defaultModel || "";
+    document.getElementById("ai-model").placeholder = data.defaultModel || "e.g. gemini-2.5-flash";
     statusEl.textContent = data.configured
-      ? `Configured: ${data.provider} (key ${data.apiKeyMasked}). The lab AI assistant is live.`
+      ? `Configured: ${data.provider} / ${data.model} (key ${data.apiKeyMasked}). The lab AI assistant is live.`
       : "Not configured yet. The AI assistant won't respond until a key is saved here.";
   } catch (err) {
     statusEl.textContent = "Could not reach the server.";
@@ -315,6 +317,7 @@ async function loadAISettings() {
 document.getElementById("ai-settings-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const provider = document.getElementById("ai-provider").value;
+  const model = document.getElementById("ai-model").value.trim();
   const apiKey = document.getElementById("ai-api-key").value.trim();
   const msg = document.getElementById("ai-settings-msg");
   msg.textContent = "";
@@ -325,7 +328,7 @@ document.getElementById("ai-settings-form").addEventListener("submit", async (e)
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ provider, apiKey }),
+      body: JSON.stringify({ provider, apiKey, model }),
     });
     const data = await res.json();
     if (!res.ok) {
