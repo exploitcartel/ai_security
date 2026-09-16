@@ -158,7 +158,7 @@ function renderTicker() {
       const change = t.price - t.prevPrice;
       const pct = t.prevPrice ? (change / t.prevPrice) * 100 : 0;
       const dir = change > 0.001 ? "up" : change < -0.001 ? "down" : "flat";
-      const arrow = dir === "up" ? "▲" : dir === "down" ? "▼" : "–";
+      const arrow = dir === "up" ? "▲" : dir === "down" ? "▼" : "-";
       return `<tr>
         <td>${t.symbol}</td>
         <td>${t.name}</td>
@@ -284,7 +284,7 @@ async function loadLastPayrollRun() {
   const data = await res.json();
   const statusEl = document.getElementById("payroll-status");
   if (data.lastRun) {
-    statusEl.textContent = `Last run: ${data.lastRun.run_date} — ${data.lastRun.employee_count} employees paid, total $${fmt(data.lastRun.total_amount)}.`;
+    statusEl.textContent = `Last run: ${data.lastRun.run_date} - ${data.lastRun.employee_count} employees paid, total $${fmt(data.lastRun.total_amount)}.`;
   } else {
     statusEl.textContent = "Payroll has not been run yet this cycle.";
   }
@@ -477,7 +477,7 @@ document.getElementById("run-payroll-btn").addEventListener("click", async () =>
     if (!res.ok) {
       statusEl.textContent = data.error || "Could not run payroll.";
     } else {
-      statusEl.textContent = `Payroll run completed on ${data.runDate} — ${data.employeeCount} employees paid, total $${fmt(data.totalAmount)}.`;
+      statusEl.textContent = `Payroll run completed on ${data.runDate} - ${data.employeeCount} employees paid, total $${fmt(data.totalAmount)}.`;
     }
   } catch (err) {
     statusEl.textContent = "Could not reach the server.";

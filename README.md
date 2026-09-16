@@ -123,7 +123,8 @@ nvm install 20
 ## 2. Setup
 
 ```bash
-cd ventify-finance
+git clone https://github.com/exploitcartel/ai_security
+cd ai_security
 npm install
 cp .env.example .env
 ```
