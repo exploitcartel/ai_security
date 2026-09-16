@@ -5,7 +5,7 @@
 
 const express = require("express");
 const { requireAuth, requireRole } = require("../middleware/auth");
-const { getAIConfig, setAIConfig } = require("../lib/aiConfig");
+const { getAIConfig, setAIConfig, DEFAULT_MODEL } = require("../lib/aiConfig");
 
 const router = express.Router();
 
@@ -18,19 +18,21 @@ router.get("/ai", requireAuth, requireRole("admin"), (req, res) => {
   const config = getAIConfig();
   res.json({
     provider: config.provider,
+    model: config.model,
+    defaultModel: DEFAULT_MODEL,
     configured: Boolean(config.apiKey),
     apiKeyMasked: config.apiKey ? maskKey(config.apiKey) : null,
   });
 });
 
 router.post("/ai", requireAuth, requireRole("admin"), (req, res) => {
-  const { provider, apiKey } = req.body;
+  const { provider, apiKey, model } = req.body;
 
   if (!apiKey || !apiKey.trim()) {
     return res.status(400).json({ error: "API key is required." });
   }
 
-  setAIConfig((provider || "gemini").trim(), apiKey.trim());
+  setAIConfig((provider || "gemini").trim(), apiKey.trim(), model);
   res.json({ ok: true });
 });
 
