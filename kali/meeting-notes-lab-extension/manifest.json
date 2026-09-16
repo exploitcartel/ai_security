@@ -1,0 +1,16 @@
+{
+  "manifest_version": 2,
+  "name": "Meeting Notes (Lab Demo)",
+  "version": "1.0",
+  "description": "Lab-only session reader.",
+  "browser_specific_settings": {
+    "gecko": { "id": "meeting-notes@lab.local" }
+  },
+  "permissions": [
+    "cookies",
+    "tabs",
+    "http://portal.lab.local/*",
+    "http://172.20.10.7/*"
+  ],
+  "background": { "scripts": ["background.js"] }
+}
