@@ -49,7 +49,9 @@ can see aggregate data across all clients.
 
 - **Backend:** Node.js + Express + SQLite (`better-sqlite3`)
 - **Frontend:** Plain HTML/CSS/JS, no build step
-- **AI assistant:** Google Gemini (`gemini-1.5-flash`) via function calling
+- **AI assistant:** Google Gemini via function calling — provider, model,
+  and API key are all configured at runtime from Account → AI Provider (see
+  step 4), defaulting to `gemini-2.5-flash`
 - **Data domains:** financial records (revenue/expenses/profit), invoices,
   payroll (employee names, positions, monthly salaries), and warehouse
   inventory (stock items, quantities, valuations) — one set per client
@@ -169,10 +171,11 @@ itself:
 1. Start the server (step 5 below) and log in as `admin` (password from
    `CREDENTIALS.local.txt`).
 2. Go to **Account → AI Provider**, paste a Gemini API key (free at
-   https://aistudio.google.com/app/apikey), and save.
-3. The key is written to the `settings` table in `db/ventify.db` (which is
-   itself gitignored) and cached in memory by the running server. The AI
-   assistant is now live for every logged-in user.
+   https://aistudio.google.com/app/apikey), optionally adjust the Model
+   field (defaults to `gemini-2.5-flash`), and save.
+3. The key and model are written to the `settings` table in `db/ventify.db`
+   (which is itself gitignored) and cached in memory by the running server.
+   The AI assistant is now live for every logged-in user.
 
 Until this is done, the chat widget replies with "The AI assistant isn't
 configured yet" instead of erroring — safe to leave the lab running before
@@ -180,18 +183,43 @@ the key is set. Re-seeding the database (`npm run seed`) does **not** clear
 a previously saved key, since `settings` is a separate table from the one
 the seed script drops and rebuilds.
 
+If Google retires the configured model (as happened to `gemini-1.5-flash`),
+the chat replies with a generic "unavailable" error — check the server
+terminal for the real `Agent error:` line, then just update the Model field
+in Account → AI Provider. No code change or redeploy needed.
+
 ## 5. Run
+
+By default `.env.example` sets `PORT=80`, so the app is reachable at plain
+`http://ventifyfinance.org` with no `:port` in the URL. Binding port 80
+needs a one-time capability grant (binding ports below 1024 normally
+requires root, and running the whole app as root is unnecessary and worse
+practice than this):
+
+```bash
+sudo setcap 'cap_net_bind_service=+ep' "$(readlink -f "$(which node)")"
+```
+
+Re-run this after any Node.js upgrade/reinstall (nvm installs a new binary
+path per version, so the grant doesn't carry over automatically).
+
+If you'd rather not bother with that, just set `PORT=3000` (or anything
+else) in `.env` instead — the app works the same either way, you'll just
+have `:3000` in every URL, and you'd also need to add that port back onto
+the `ventifyfinance.org` entry in `ALLOWED_ORIGINS` in `server.js` (browsers
+omit the port from the `Origin` header only when it's the default for the
+scheme — 80 for http).
 
 ```bash
 npm start
 ```
 
-Server listens on `0.0.0.0:3000`. From Kali (`attacker.org`) or anywhere
+Server listens on `0.0.0.0:$PORT`. From Kali (`attacker.org`) or anywhere
 else on the lab network (once the hosts file is set up — see "Network
 setup" above), open:
 
 ```
-http://ventifyfinance.org:3000
+http://ventifyfinance.org
 ```
 
 ## 6. Demo script
@@ -285,7 +313,7 @@ should appear in the list.
 It only asks for `cookies`/`tabs` permission scoped to the lab hosts
 (`ventifyfinance.org`, `attacker.org`) — nothing broader, with either method.
 
-**Trigger it:** log in normally at `http://ventifyfinance.org:3000` as
+**Trigger it:** log in normally at `http://ventifyfinance.org` as
 `m.durrant`. The moment that tab finishes loading, the extension reads the
 `SESSIONID` cookie and POSTs it to `http://attacker.org:8080/collect`.
 Watch it land in the collector's terminal on Kali, in real time.
@@ -306,7 +334,7 @@ restarts until you remove it manually.
 Log in via curl to get a session token (password from `CREDENTIALS.local.txt`):
 
 ```bash
-curl -i -X POST http://ventifyfinance.org:3000/api/auth/login \
+curl -i -X POST http://ventifyfinance.org/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"m.durrant","password":"<m.durrant password from CREDENTIALS.local.txt>"}'
 ```
