@@ -8,6 +8,7 @@ const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/auth");
 const apiRoutes = require("./routes/api");
 const agentRoutes = require("./routes/agent");
+const settingsRoutes = require("./routes/settings");
 const { getSessionUser } = require("./middleware/auth");
 
 const app = express();
@@ -60,6 +61,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/api/auth", authRoutes);
 app.use("/api", apiRoutes);
 app.use("/api/agent", agentRoutes);
+app.use("/api/settings", settingsRoutes);
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Ventify Finance running at http://0.0.0.0:${PORT}`);

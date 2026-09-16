@@ -72,6 +72,7 @@
           <div class="nav-subitems">
             <a href="#" class="nav-item sub" data-view="profile">My Profile</a>
             <a href="#" class="nav-item sub" data-view="security">Change Password</a>
+            <a href="#" class="nav-item sub hidden" id="nav-ai-settings" data-view="ai-settings">AI Provider</a>
           </div>
         </div>
       </nav>
@@ -232,6 +233,23 @@
             <input type="password" id="confirm-password" required minlength="8" />
             <button type="submit">Update Password</button>
             <p class="form-msg" id="password-msg"></p>
+          </form>
+        </div>
+      </section>
+
+      <section id="view-ai-settings" class="view hidden">
+        <div class="panel narrow">
+          <h3>AI Provider</h3>
+          <p class="muted" id="ai-status">Checking configuration...</p>
+          <form id="ai-settings-form">
+            <label>Provider</label>
+            <select id="ai-provider">
+              <option value="gemini">Google Gemini</option>
+            </select>
+            <label>API key</label>
+            <input type="password" id="ai-api-key" placeholder="Paste the provider's API key" required />
+            <button type="submit">Save</button>
+            <p class="form-msg" id="ai-settings-msg"></p>
           </form>
         </div>
       </section>

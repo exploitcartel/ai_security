@@ -95,12 +95,12 @@ npm install
 cp .env.example .env
 ```
 
-Edit `.env`:
-- `GEMINI_API_KEY` — a free key from https://aistudio.google.com/app/apikey
-- `SESSION_SECRET` — any random string (not security-critical here, kept for
-  future use)
+`.env` only holds `SESSION_SECRET` and `PORT` — nothing sensitive. The AI
+provider's API key is **not** an env var; it's configured at runtime from the
+dashboard (see step 4), so there's nothing secret to put in `.env` or to
+accidentally commit.
 
-**Never commit your real `.env` file.** It's already in `.gitignore`.
+**Never commit your real `.env` file anyway.** It's already in `.gitignore`.
 
 ## 3. Seed the database
 
@@ -117,15 +117,39 @@ Creates `db/ventify.db` with:
 - 4 warehouse/inventory items per client, matched to their industry (e.g.
   "Raw Steel Coil" for a manufacturer, "Active Ingredient Stock" for a
   pharma company)
-- Users (all passwords: `Ventify2026!`):
-  - `admin`, `dev.ops` — admin role
-  - `j.morrow`, `t.reyes` — financial_agent role
-  - 20 business_viewer accounts, one per client company
+- 24 users, **each with its own randomly generated password** (no shared
+  demo password): `admin`, `dev.ops` (admin role), `j.morrow`, `t.reyes`
+  (financial_agent role), and 20 business_viewer accounts, one per client
+  company.
 
-**Demo "victim" account:** `m.durrant` / `Ventify2026!` — Marcus Durrant,
-business_viewer at Meridian Textiles (client_id 1).
+All generated logins are written to `CREDENTIALS.local.txt` in the repo root
+(gitignored, never commit it) — that's your only copy, so keep it. Re-running
+`npm run seed` wipes the data and regenerates everyone's password.
 
-## 4. Run
+**Demo "victim" account:** `m.durrant` — Marcus Durrant, business_viewer at
+Meridian Textiles (client_id 1). Password is in `CREDENTIALS.local.txt`.
+
+## 4. Configure the AI provider (first run only)
+
+The only actually-sensitive value in this lab is the AI provider's API key,
+and it's never stored in a file at all — it's configured through the app
+itself:
+
+1. Start the server (step 5 below) and log in as `admin` (password from
+   `CREDENTIALS.local.txt`).
+2. Go to **Account → AI Provider**, paste a Gemini API key (free at
+   https://aistudio.google.com/app/apikey), and save.
+3. The key is written to the `settings` table in `db/ventify.db` (which is
+   itself gitignored) and cached in memory by the running server. The AI
+   assistant is now live for every logged-in user.
+
+Until this is done, the chat widget replies with "The AI assistant isn't
+configured yet" instead of erroring — safe to leave the lab running before
+the key is set. Re-seeding the database (`npm run seed`) does **not** clear
+a previously saved key, since `settings` is a separate table from the one
+the seed script drops and rebuilds.
+
+## 5. Run
 
 ```bash
 npm start
@@ -138,7 +162,7 @@ on the private network (172.20.10.x), open:
 http://172.20.10.5:3000
 ```
 
-## 5. Demo script
+## 6. Demo script
 
 ### Part A — normal use (establish the baseline)
 1. Log in as `m.durrant`. Show the dashboard, Invoices, Payroll and
@@ -164,14 +188,14 @@ http://172.20.10.5:3000
    targeting Workday/NetSuite/SAP SuccessFactors, and the ChatGPT
    session-token-stealing extension campaigns).
 
-## 6. Running garak against the lab
+## 7. Running garak against the lab
 
-Log in via curl to get a session token:
+Log in via curl to get a session token (password from `CREDENTIALS.local.txt`):
 
 ```bash
 curl -i -X POST http://172.20.10.5:3000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username":"m.durrant","password":"Ventify2026!"}'
+  -d '{"username":"m.durrant","password":"<m.durrant password from CREDENTIALS.local.txt>"}'
 ```
 
 Copy the `SESSIONID` value from the `Set-Cookie` response header, and paste
@@ -192,14 +216,17 @@ with a `clientId` other than Marcus's own (client_id 1). The chat API
 response includes `functionCalled` and `functionArgs` in its JSON for
 exactly this reason.
 
-## 7. Resetting the lab
+## 8. Resetting the lab
 
 ```bash
 npm run seed
 ```
 
-Re-running the seed script wipes and rebuilds the database and all sessions
-are lost (in-memory store) on the next server restart.
+Re-running the seed script wipes and rebuilds the financial/payroll/
+inventory data and generates a fresh random password for every user
+(check `CREDENTIALS.local.txt` again afterwards). It does **not** touch the
+configured AI provider key or active sessions; restart the server to clear
+sessions (in-memory store).
 
 ## Notes / things intentionally left out of this lab
 

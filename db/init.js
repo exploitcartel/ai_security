@@ -2,12 +2,19 @@
 // Creates the SQLite database and seeds it with realistic demo data.
 // Run with: npm run seed
 
+const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const Database = require("better-sqlite3");
 
 const DB_PATH = path.join(__dirname, "ventify.db");
 const db = new Database(DB_PATH);
+
+function randomPassword() {
+  // 12 alphanumeric chars, e.g. "aZ3kLmN9pQrS" - plenty for a demo lab.
+  return crypto.randomBytes(9).toString("base64").replace(/[+/=]/g, "").slice(0, 12);
+}
 
 db.pragma("journal_mode = WAL");
 
@@ -387,17 +394,26 @@ clientIds.forEach((cid) => {
     );
   }
 });
-// Password for every seeded account is: Ventify2026!
-const hash = bcrypt.hashSync("Ventify2026!", 10);
+// Every account gets its own random password - there is no shared demo
+// password anymore. All of them are written to CREDENTIALS.local.txt
+// (gitignored) at the end of this script; nothing sensitive is hardcoded
+// or committed.
+const credentials = [];
 
 const insertUser = db.prepare(
   "INSERT INTO users (username, password_hash, full_name, role, client_id) VALUES (?, ?, ?, ?, ?)"
 );
 
-insertUser.run("admin", hash, "Alma Krasniqi", "admin", null);
-insertUser.run("dev.ops", hash, "Genti Hoxha", "admin", null);
-insertUser.run("j.morrow", hash, "Julia Morrow", "financial_agent", null);
-insertUser.run("t.reyes", hash, "Tomas Reyes", "financial_agent", null);
+function createUser(username, fullName, role, clientId, companyName) {
+  const password = randomPassword();
+  insertUser.run(username, bcrypt.hashSync(password, 10), fullName, role, clientId);
+  credentials.push({ username, role, companyName: companyName || "", password });
+}
+
+createUser("admin", "Alma Krasniqi", "admin", null);
+createUser("dev.ops", "Genti Hoxha", "admin", null);
+createUser("j.morrow", "Julia Morrow", "financial_agent", null);
+createUser("t.reyes", "Tomas Reyes", "financial_agent", null);
 
 const viewerLogins = [
   ["m.durrant", "Marcus Durrant"],
@@ -423,8 +439,27 @@ const viewerLogins = [
 ];
 
 viewerLogins.forEach(([username, fullName], idx) => {
-  insertUser.run(username, hash, fullName, "business_viewer", clientIds[idx]);
+  createUser(username, fullName, "business_viewer", clientIds[idx], clients[idx][0]);
 });
+
+// --- Write generated credentials to a local, gitignored file ---------------
+const credentialsPath = path.join(__dirname, "..", "CREDENTIALS.local.txt");
+const credentialLines = [
+  "Ventify Finance - generated demo credentials",
+  `Generated at: ${new Date().toISOString()}`,
+  "Do NOT commit this file (already in .gitignore). Re-run `npm run seed` to regenerate.",
+  "",
+  "username         role              company                     password",
+  "----------------------------------------------------------------------------------",
+  ...credentials.map(
+    (c) =>
+      `${c.username.padEnd(16)} ${c.role.padEnd(17)} ${c.companyName.padEnd(27)} ${c.password}`
+  ),
+];
+fs.writeFileSync(credentialsPath, credentialLines.join("\n") + "\n");
+
+const sysadmin = credentials.find((c) => c.username === "admin");
+const victim = credentials.find((c) => c.username === "m.durrant");
 
 console.log("Database seeded successfully.");
 console.log(`- ${clients.length} client companies`);
@@ -432,8 +467,12 @@ console.log(`- ${clientIds.length * months.length} financial records`);
 console.log(`- ${clientIds.length * 4} invoices`);
 console.log(`- payroll and inventory records for all ${clientIds.length} companies`);
 console.log(`- suppliers and purchase orders for all ${clientIds.length} companies`);
-console.log(`- ${2 + 2 + viewerLogins.length} users (all passwords: Ventify2026!)`);
+console.log(`- ${credentials.length} users, each with its own random password`);
 console.log("");
-console.log("Demo victim account: m.durrant / Ventify2026!  (Marcus Durrant, Meridian Textiles)");
+console.log(`All credentials written to: ${credentialsPath}`);
+console.log(`Sysadmin login: admin / ${sysadmin.password}`);
+console.log(`  -> log in as sysadmin first and set the AI provider API key under`);
+console.log(`     Account -> AI Provider before running the demo.`);
+console.log(`Demo victim account: m.durrant / ${victim.password}  (Marcus Durrant, Meridian Textiles)`);
 
 db.close();

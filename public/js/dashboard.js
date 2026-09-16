@@ -17,6 +17,11 @@ async function init() {
   document.getElementById("company-chip").textContent =
     currentUser.companyName || "All Clients (internal)";
 
+  if (currentUser.role === "admin") {
+    document.getElementById("nav-ai-settings").classList.remove("hidden");
+    loadAISettings();
+  }
+
   loadProfileCompany();
   await loadOverview();
   await loadInvoices();
@@ -282,6 +287,56 @@ document.getElementById("password-form").addEventListener("submit", async (e) =>
     msg.textContent = "Password updated successfully.";
     msg.classList.add("ok");
     document.getElementById("password-form").reset();
+  } catch (err) {
+    msg.textContent = "Could not reach the server.";
+    msg.classList.add("error");
+  }
+});
+
+// --- AI Provider settings (admin only) ---
+async function loadAISettings() {
+  const statusEl = document.getElementById("ai-status");
+  try {
+    const res = await fetch("/api/settings/ai", { credentials: "include" });
+    if (!res.ok) {
+      statusEl.textContent = "Could not load AI settings.";
+      return;
+    }
+    const data = await res.json();
+    document.getElementById("ai-provider").value = data.provider || "gemini";
+    statusEl.textContent = data.configured
+      ? `Configured: ${data.provider} (key ${data.apiKeyMasked}). The lab AI assistant is live.`
+      : "Not configured yet. The AI assistant won't respond until a key is saved here.";
+  } catch (err) {
+    statusEl.textContent = "Could not reach the server.";
+  }
+}
+
+document.getElementById("ai-settings-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const provider = document.getElementById("ai-provider").value;
+  const apiKey = document.getElementById("ai-api-key").value.trim();
+  const msg = document.getElementById("ai-settings-msg");
+  msg.textContent = "";
+  msg.className = "form-msg";
+
+  try {
+    const res = await fetch("/api/settings/ai", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ provider, apiKey }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      msg.textContent = data.error || "Could not save the AI settings.";
+      msg.classList.add("error");
+      return;
+    }
+    msg.textContent = "Saved. The AI assistant is live.";
+    msg.classList.add("ok");
+    document.getElementById("ai-api-key").value = "";
+    loadAISettings();
   } catch (err) {
     msg.textContent = "Could not reach the server.";
     msg.classList.add("error");

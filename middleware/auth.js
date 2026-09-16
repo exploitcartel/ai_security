@@ -19,4 +19,14 @@ function requireAuth(req, res, next) {
   next();
 }
 
-module.exports = { requireAuth, getSessionUser };
+function requireRole(...roles) {
+  return function (req, res, next) {
+    if (!req.currentUser) return res.status(401).json({ error: "Not logged in." });
+    if (!roles.includes(req.currentUser.role)) {
+      return res.status(403).json({ error: "You don't have permission to do that." });
+    }
+    next();
+  };
+}
+
+module.exports = { requireAuth, requireRole, getSessionUser };

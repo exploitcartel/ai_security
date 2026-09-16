@@ -2,10 +2,9 @@ const express = require("express");
 const { GoogleGenerativeAI, SchemaType } = require("@google/generative-ai");
 const db = require("../db/connection");
 const { requireAuth } = require("../middleware/auth");
+const { getAIConfig } = require("../lib/aiConfig");
 
 const router = express.Router();
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 // --- The "tools" the AI assistant can call --------------------------------
 // THIS IS THE INTENTIONALLY VULNERABLE PART OF THE LAB.
@@ -169,14 +168,16 @@ router.post("/chat", requireAuth, async (req, res) => {
   const { message } = req.body;
   const user = req.currentUser;
 
-  if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === "your_key_here") {
+  const aiConfig = getAIConfig();
+  if (!aiConfig.apiKey) {
     return res.status(500).json({
       error:
-        "GEMINI_API_KEY is not configured. Copy .env.example to .env and add your key from https://aistudio.google.com/app/apikey",
+        "The AI assistant isn't configured yet. Ask an admin to set it up under Account → AI Provider.",
     });
   }
 
   try {
+    const genAI = new GoogleGenerativeAI(aiConfig.apiKey);
     const model = genAI.getGenerativeModel({
       model: "gemini-1.5-flash",
       systemInstruction: SYSTEM_INSTRUCTION,
