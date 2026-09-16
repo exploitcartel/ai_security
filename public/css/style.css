@@ -156,7 +156,8 @@ body { margin: 0; background: var(--blue-50); color: #1c2b36; }
 
 .panel { background: white; border: 1px solid var(--gray-300); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
 .panel.narrow { max-width: 420px; }
-.panel h3 { margin-top: 0; color: var(--blue-900); }
+.panel h3 { margin-top: 0; color: var(--blue-900); display: flex; align-items: center; gap: 8px; }
+.panel h3 svg { width: 20px; height: 20px; stroke: var(--blue-700); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 .muted { color: var(--gray-600); font-size: 14px; }
 
 #password-form label, #ai-settings-form label { display: block; font-size: 13px; color: var(--gray-600); margin-bottom: 4px; margin-top: 14px; }
@@ -211,21 +212,35 @@ body { margin: 0; background: var(--blue-50); color: #1c2b36; }
 
 .quick-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; }
 .quick-action-btn {
+  display: flex; align-items: center; gap: 10px;
   padding: 14px 16px; border: 1px solid var(--gray-300); border-radius: 10px; background: var(--blue-50);
   color: var(--blue-900); font-size: 14px; font-weight: 600; text-align: left; cursor: pointer;
 }
 .quick-action-btn:hover { background: var(--blue-100); border-color: var(--blue-500); }
+.quick-action-btn svg {
+  width: 20px; height: 20px; stroke: var(--blue-700); fill: none; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0;
+}
 
 .hidden { display: none; }
 
 /* ---------- Overview chart + market ticker ---------- */
-.chart-wrap { margin: 10px 0 4px; max-height: 260px; position: relative; }
+/* Chart.js needs a real height (not max-height) on the container when
+   maintainAspectRatio is false, or it collapses to the canvas's tiny
+   intrinsic size and every line renders flat. */
+.chart-wrap { margin: 10px 0 4px; height: 280px; position: relative; }
 .ticker-panel .panel-header { margin-bottom: 2px; }
 .ticker-note { font-size: 11px; white-space: nowrap; }
 .ticker-up { color: var(--success); font-weight: 700; }
 .ticker-down { color: var(--danger); font-weight: 700; }
 .ticker-flat { color: var(--gray-600); font-weight: 700; }
 #ticker-table td:first-child { font-family: "SFMono-Regular", Consolas, monospace; letter-spacing: 0.03em; }
+.panel-header h3 { display: flex; align-items: center; gap: 8px; }
+.panel-header h3 svg {
+  width: 18px; height: 18px; stroke: var(--blue-900); fill: none; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0;
+}
+.provider-note { font-size: 12px; margin-top: 4px; margin-bottom: 0; }
 
 /* ---------- Chat widget ---------- */
 .chat-widget {
@@ -242,13 +257,21 @@ body { margin: 0; background: var(--blue-50); color: #1c2b36; }
   font-size: 14px; font-weight: 600; cursor: pointer;
 }
 .chat-header-left { display: flex; align-items: center; gap: 8px; }
-.chat-bot-icon { font-size: 18px; line-height: 1; }
+.chat-bot-icon { display: flex; align-items: center; justify-content: center; }
+.chat-bot-icon svg {
+  width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+}
 .chat-header-actions { display: flex; align-items: center; gap: 10px; }
 .chat-icon-btn {
   background: rgba(255,255,255,0.15); border: none; color: white; width: 24px; height: 24px;
-  border-radius: 6px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;
 }
 .chat-icon-btn:hover { background: rgba(255,255,255,0.3); }
+.chat-icon-btn svg {
+  width: 14px; height: 14px; stroke: white; fill: none; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+}
 
 /* Collapsed = spherical floating button, icon only */
 .chat-widget.collapsed {
@@ -261,7 +284,7 @@ body { margin: 0; background: var(--blue-50); color: #1c2b36; }
 .chat-widget.collapsed .chat-header-text,
 .chat-widget.collapsed .chat-header-actions,
 .chat-widget.collapsed .chat-body { display: none; }
-.chat-widget.collapsed .chat-bot-icon { font-size: 30px; }
+.chat-widget.collapsed .chat-bot-icon svg { width: 30px; height: 30px; }
 .chat-widget.collapsed #chat-caret { transform: rotate(180deg); }
 
 .chat-body { display: flex; flex-direction: column; height: 380px; }
