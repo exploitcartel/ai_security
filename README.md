@@ -204,14 +204,54 @@ python3 kali/collector.py
 
 Listens on `0.0.0.0:8080` and prints whatever gets POSTed to `/collect`.
 
-**On the Windows victim machine (172.20.10.6) — load the extension in Firefox:**
+**On the Windows victim machine (172.20.10.6) — load the extension in Firefox.**
+Two ways to do this, depending on how "installed" you want it to look.
+
+**Method A — Temporary Add-on (quick, any Firefox, lost on restart):**
 
 1. Open `about:debugging#/runtime/this-firefox`
 2. Click **Load Temporary Add-on…**
 3. Select `kali/meeting-notes-lab-extension/manifest.json`
 
+**Method B — persistent double-click install (survives restart, closer to
+how a real malicious extension would land, but needs a specific setup):**
+
+Requirements — both are needed, or it won't install:
+- **Firefox Developer Edition or Nightly**, not regular Firefox. Only those
+  builds allow installing an unsigned extension at all.
+- In `about:config`, set `xpinstall.signatures.required` to **`false`**.
+  Without this, double-clicking the `.xpi` gives a "corrupt" or "not
+  verified" error even on Developer/Nightly.
+
+Build the `.xpi` (it must be `manifest.json` and `background.js` zipped at
+the **root** of the archive, not inside a subfolder — a nested folder is
+exactly what causes the "corrupt" error):
+
+```bash
+cd kali/meeting-notes-lab-extension
+zip -r ../meeting-notes-lab.xpi manifest.json background.js
+```
+
+Then:
+1. Double-click `meeting-notes-lab.xpi`
+2. Firefox shows an **"Add extension?"** dialog → click **Add**
+3. It's now installed persistently
+
+**Verify it's loaded (either method):** open
+`about:debugging#/runtime/this-firefox` — **"Meeting Notes (Lab Demo)"**
+should appear in the list.
+
+**Troubleshooting Method B:**
+- **"corrupt"** → the zip has a folder inside it; rebuild with `manifest.json`
+  and `background.js` directly at the archive root (see the `zip` command
+  above).
+- **"not verified"** → you're on regular Firefox instead of Developer/
+  Nightly, or the `about:config` flag isn't set to `false`.
+- **Nothing happens on double-click** → open `about:debugging` and check for
+  an error there instead.
+
 It only asks for `cookies`/`tabs` permission scoped to the lab hosts
-(`172.20.10.5`, `portal.lab.local`) — nothing broader.
+(`172.20.10.5`, `portal.lab.local`) — nothing broader, with either method.
 
 **Trigger it:** log in normally at `http://172.20.10.5:3000` as `m.durrant`.
 The moment that tab finishes loading, the extension reads the `SESSIONID`
@@ -225,8 +265,9 @@ never logged in. This is the same cookie that `garak/rest_config.json`
 expects in step 8, so it doubles as your setup for the AI-authorization
 attack too.
 
-Temporary add-ons are removed when Firefox restarts — reload it each time
-you reset the lab environment.
+Temporary add-ons (Method A) are removed when Firefox restarts — reload it
+each time you reset the lab environment. A Method B install survives
+restarts until you remove it manually.
 
 ## 8. Running garak against the lab
 
