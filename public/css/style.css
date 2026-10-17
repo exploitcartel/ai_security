@@ -197,11 +197,29 @@ body { margin: 0; background: var(--blue-50); color: #1c2b36; }
 
 .panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; gap: 12px; }
 .panel-header h3 { margin: 0; }
+.panel-header-actions { display: flex; align-items: center; gap: 10px; }
 
 .month-filter {
   padding: 7px 10px; border: 1px solid var(--gray-300); border-radius: 8px;
   font-size: 13px; color: var(--gray-600); background: white; cursor: pointer;
 }
+
+.export-btn {
+  padding: 7px 14px; border: 1px solid var(--blue-500); border-radius: 8px;
+  font-size: 13px; font-weight: 600; color: var(--blue-700); background: white; cursor: pointer;
+}
+.export-btn:hover { background: var(--blue-100); }
+
+.search-wrap { position: relative; display: flex; align-items: center; }
+.search-wrap .search-icon {
+  position: absolute; left: 10px; width: 15px; height: 15px;
+  fill: none; stroke: var(--gray-600); stroke-width: 2; pointer-events: none;
+}
+.search-wrap input {
+  padding: 8px 12px 8px 32px; border: 1px solid var(--gray-300); border-radius: 8px;
+  font-size: 13px; width: 220px; outline: none;
+}
+.search-wrap input:focus { border-color: var(--blue-500); }
 
 .run-payroll-btn {
   padding: 9px 18px; border: none; border-radius: 8px; background: var(--blue-700);
@@ -292,6 +310,18 @@ body { margin: 0; background: var(--blue-50); color: #1c2b36; }
 .msg { padding: 8px 12px; border-radius: 10px; font-size: 13px; max-width: 85%; line-height: 1.4; }
 .msg.bot { background: var(--blue-50); align-self: flex-start; }
 .msg.user { background: var(--blue-700); color: white; align-self: flex-end; }
+
+.msg.typing { display: flex; align-items: center; gap: 4px; padding: 12px; }
+.typing-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--blue-500);
+  opacity: 0.4; animation: typing-bounce 1.2s infinite ease-in-out;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.typing-dot:nth-child(3) { animation-delay: 0.3s; }
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
 #chat-form { display: flex; border-top: 1px solid var(--gray-300); }
 #chat-input { flex: 1; border: none; padding: 10px 12px; font-size: 13px; outline: none; }
 #chat-form button { border: none; background: var(--blue-700); color: white; padding: 0 16px; cursor: pointer; font-size: 13px; }

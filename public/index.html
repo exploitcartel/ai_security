@@ -2,26 +2,125 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Ventify Finance | Sign In</title>
+<title>Ventify Finance | Bookkeeping &amp; Accounting Platform</title>
 <link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/home.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
-<body class="login-body">
-  <div class="login-card">
+<body class="home-body">
+
+  <nav class="home-nav">
     <div class="brand">
       <div class="brand-mark">V</div>
-      <h1>Ventify Finance</h1>
+      <span>Ventify Finance</span>
     </div>
-    <p class="subtitle">Sign in to your account</p>
-    <form id="login-form">
-      <label>Username</label>
-      <input type="text" id="username" autocomplete="username" required />
-      <label>Password</label>
-      <input type="password" id="password" autocomplete="current-password" required />
-      <button type="submit">Sign In</button>
-      <p class="error" id="error-msg"></p>
-    </form>
-    <p class="hint">Demo account: <code>m.durrant</code> / <code>Ventify2026!</code></p>
-  </div>
-<script src="js/login.js"></script>
+    <div class="home-nav-links">
+      <a href="#home">Home</a>
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#contact">Contact</a>
+      <a href="login.html" class="home-login-btn">Login</a>
+    </div>
+  </nav>
+
+  <header id="home" class="home-hero">
+    <h1>Bookkeeping and accounting, handled.</h1>
+    <p>Ventify Finance manages financial records, payroll, and warehouse
+      inventory on behalf of client companies across industries - with a
+      built-in AI assistant to help you make sense of your numbers.</p>
+    <a href="login.html" class="home-login-btn">Client Login</a>
+  </header>
+
+  <section id="dashboards" class="home-section">
+    <h2>Real-time dashboards</h2>
+    <p class="home-lede">A look at the kind of reporting every client gets -
+      live numbers, broken down the way your finance team actually thinks
+      about them.</p>
+    <div class="home-chart-grid">
+      <div class="home-chart-card">
+        <h3>Platform Revenue &amp; Profit Trend</h3>
+        <div class="home-chart-wrap"><canvas id="chart-revenue-trend"></canvas></div>
+      </div>
+      <div class="home-chart-card">
+        <h3>Client Companies by Industry</h3>
+        <div class="home-chart-wrap"><canvas id="chart-industries"></canvas></div>
+      </div>
+      <div class="home-chart-card">
+        <h3>Invoices by Status</h3>
+        <div class="home-chart-wrap"><canvas id="chart-invoice-status"></canvas></div>
+      </div>
+      <div class="home-chart-card">
+        <h3>Monthly Transaction Volume</h3>
+        <div class="home-chart-wrap"><canvas id="chart-transactions"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="about" class="home-section">
+    <h2>About Ventify Finance</h2>
+    <p class="home-lede">We're a bookkeeping and accounting service provider
+      trusted by companies of all sizes to keep their books accurate and
+      their reporting on time.</p>
+    <div class="home-about-grid">
+      <div class="home-about-text">
+        <p>Founded to take the busywork out of financial operations, Ventify
+          Finance handles day-to-day bookkeeping, payroll processing, and
+          inventory tracking so our clients can focus on running their
+          business. Each client's staff can log in any time to see their
+          own company's numbers, while our team of financial agents keeps
+          everything reconciled behind the scenes.</p>
+        <p>Every account also comes with the Ventify AI Assistant, which can
+          summarize reports, answer questions about your finances, and
+          generate quick breakdowns on demand.</p>
+      </div>
+      <div class="home-stat-grid">
+        <div class="home-stat"><div class="num">20+</div><div class="label">Client companies served</div></div>
+        <div class="home-stat"><div class="num">24/7</div><div class="label">Account access</div></div>
+        <div class="home-stat"><div class="num">3</div><div class="label">Data domains tracked</div></div>
+        <div class="home-stat"><div class="num">1</div><div class="label">AI assistant, always on</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="services" class="home-section">
+    <h2>Services</h2>
+    <p class="home-lede">Everything your finance team needs in one dashboard.</p>
+    <div class="home-cards">
+      <div class="home-card">
+        <h3>Financial Reporting</h3>
+        <p>Monthly revenue, expenses, and profit tracking with clear
+          visual summaries and exportable reports.</p>
+      </div>
+      <div class="home-card">
+        <h3>Payroll Management</h3>
+        <p>Employee records, monthly salary runs, and payment history,
+          all in one place.</p>
+      </div>
+      <div class="home-card">
+        <h3>Warehouse &amp; Inventory</h3>
+        <p>Stock levels, supplier orders, and valuation tracking for
+          physical inventory.</p>
+      </div>
+      <div class="home-card">
+        <h3>AI Assistant</h3>
+        <p>Ask questions about your account in plain language and get
+          instant summaries and forecasts.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="home-section">
+    <h2>Contact</h2>
+    <p class="home-lede">Existing client? Sign in to your account below.
+      New to Ventify Finance? Reach out to your account manager to get
+      set up.</p>
+    <a href="login.html" class="home-login-btn">Go to Login</a>
+  </section>
+
+  <footer class="home-footer">
+    &copy; 2026 Ventify Finance. All rights reserved.
+  </footer>
+
+<script src="js/home-charts.js"></script>
 </body>
 </html>

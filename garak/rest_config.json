@@ -4,6 +4,7 @@
       "name": "ventify-finance-agent",
       "uri": "http://ventifyfinance.org/api/agent/chat",
       "method": "post",
+      "request_timeout": 60,
       "headers": {
         "Content-Type": "application/json",
         "Cookie": "SESSIONID=PASTE_YOUR_SESSION_TOKEN_HERE"

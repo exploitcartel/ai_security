@@ -34,6 +34,7 @@ async function init() {
   await loadTransactions();
   await loadLastPayrollRun();
   await loadNotifications();
+  await loadChatHistory();
 }
 
 function fmt(n) {
@@ -352,7 +353,67 @@ function activateView(viewName, label) {
   document.querySelectorAll(".view").forEach((v) => v.classList.add("hidden"));
   document.getElementById(`view-${viewName}`).classList.remove("hidden");
   document.getElementById("view-title").textContent = label;
+
+  // Reset the global search when switching views, since it filters
+  // whichever table is currently visible.
+  const search = document.getElementById("global-search");
+  if (search) {
+    search.value = "";
+    filterVisibleTable("");
+  }
 }
+
+// ---------------------------------------------------------------------------
+// Global search - filters the rows of whichever .data-table is visible in
+// the currently active view. Generic by design so it works for every tab
+// (Invoices, Payroll, Warehouse Stock, Suppliers, Orders, Transactions...)
+// without needing per-table wiring.
+// ---------------------------------------------------------------------------
+
+function filterVisibleTable(query) {
+  const activeView = document.querySelector(".view:not(.hidden)");
+  if (!activeView) return;
+  const rows = activeView.querySelectorAll(".data-table tbody tr");
+  const q = query.trim().toLowerCase();
+  rows.forEach((row) => {
+    const matches = !q || row.textContent.toLowerCase().includes(q);
+    row.style.display = matches ? "" : "none";
+  });
+}
+
+document.getElementById("global-search").addEventListener("input", (e) => {
+  filterVisibleTable(e.target.value);
+});
+
+// ---------------------------------------------------------------------------
+// Export CSV - reads whichever table the button is attached to and
+// downloads its current (search-filtered) rows as a CSV file.
+// ---------------------------------------------------------------------------
+
+function tableToCsv(tableId) {
+  const table = document.getElementById(tableId);
+  const rows = [...table.querySelectorAll("tr")].filter((r) => r.style.display !== "none");
+  return rows
+    .map((row) =>
+      [...row.children]
+        .map((cell) => `"${cell.textContent.trim().replace(/"/g, '""')}"`)
+        .join(",")
+    )
+    .join("\n");
+}
+
+document.querySelectorAll(".export-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const csv = tableToCsv(btn.dataset.table);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${btn.dataset.filename || "export"}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+});
 
 document.querySelectorAll(".nav-item[data-view]").forEach((item) => {
   item.addEventListener("click", (e) => {
@@ -503,6 +564,27 @@ document.addEventListener("click", (e) => {
 // Chat widget
 // ---------------------------------------------------------------------------
 
+// Restores the conversation from chat_logs on page load, so refreshing the
+// page (or reopening the widget later) doesn't lose prior turns. Backed by
+// GET /api/agent/history, which returns this user's own logged messages.
+async function loadChatHistory() {
+  try {
+    const res = await fetch("/api/agent/history", { credentials: "include" });
+    if (!res.ok) return;
+    const history = await res.json();
+    if (!history.length) return;
+
+    const messages = document.getElementById("chat-messages");
+    messages.innerHTML = "";
+    history.forEach((turn) => {
+      addMessage(turn.message, "user");
+      addMessage(turn.response || "(no response)", "bot", true);
+    });
+  } catch (err) {
+    // Non-fatal - the widget just falls back to its default greeting.
+  }
+}
+
 document.getElementById("chat-toggle").addEventListener("click", () => {
   const widget = document.getElementById("chat-widget");
   if (widget.classList.contains("fullpage")) {
@@ -540,7 +622,7 @@ document.querySelectorAll(".quick-action-btn").forEach((btn) => {
 
 async function sendChatMessage(message) {
   addMessage(message, "user");
-  const typingId = addMessage("...", "bot", true);
+  const typingId = addTypingIndicator();
 
   try {
     const res = await fetch("/api/agent/chat", {
@@ -568,9 +650,24 @@ function addMessage(text, who, isMarkdown) {
   return id;
 }
 
+// Animated "typing..." bubble shown while waiting for the assistant's
+// reply, so the widget feels alive instead of frozen on a static "...".
+function addTypingIndicator() {
+  const messages = document.getElementById("chat-messages");
+  const div = document.createElement("div");
+  const id = `msg-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+  div.id = id;
+  div.className = "msg bot typing";
+  div.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+  return id;
+}
+
 function replaceMessage(id, text) {
   const el = document.getElementById(id);
   if (!el) return;
+  el.classList.remove("typing");
   el.innerHTML = renderMarkdown(text);
   const messages = document.getElementById("chat-messages");
   messages.scrollTop = messages.scrollHeight;

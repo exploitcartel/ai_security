@@ -94,6 +94,10 @@
       <header class="topbar">
         <h2 id="view-title">Dashboard</h2>
         <div class="topbar-right">
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24" class="search-icon"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="global-search" placeholder="Search this table..." autocomplete="off" />
+          </div>
           <div class="bell-wrap">
             <button class="icon-btn bell-btn" id="bell-btn" title="Notifications">
               <svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0112 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M10 20a2 2 0 004 0"/></svg>
@@ -138,12 +142,15 @@
         <div class="panel">
           <div class="panel-header">
             <h3>Invoices</h3>
-            <select class="month-filter" id="invoices-filter">
-              <option value="">All months</option>
-              <option value="2026-06">June 2026</option>
-              <option value="2026-07">July 2026</option>
-              <option value="2026-08">August 2026</option>
-            </select>
+            <div class="panel-header-actions">
+              <select class="month-filter" id="invoices-filter">
+                <option value="">All months</option>
+                <option value="2026-06">June 2026</option>
+                <option value="2026-07">July 2026</option>
+                <option value="2026-08">August 2026</option>
+              </select>
+              <button class="export-btn" data-table="invoices-table" data-filename="invoices">Export CSV</button>
+            </div>
           </div>
           <table class="data-table" id="invoices-table">
             <thead><tr><th>Invoice #</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
@@ -154,7 +161,10 @@
 
       <section id="view-transactions" class="view hidden">
         <div class="panel">
-          <h3>Cash Flow / Transactions</h3>
+          <div class="panel-header">
+            <h3>Cash Flow / Transactions</h3>
+            <button class="export-btn" data-table="transactions-table" data-filename="transactions">Export CSV</button>
+          </div>
           <table class="data-table" id="transactions-table">
             <thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Amount</th><th>Balance After</th></tr></thead>
             <tbody></tbody>
@@ -166,7 +176,10 @@
         <div class="panel">
           <div class="panel-header">
             <h3>Payroll</h3>
-            <button class="run-payroll-btn" id="run-payroll-btn">Run Payroll</button>
+            <div class="panel-header-actions">
+              <button class="export-btn" data-table="payroll-table" data-filename="payroll">Export CSV</button>
+              <button class="run-payroll-btn" id="run-payroll-btn">Run Payroll</button>
+            </div>
           </div>
           <p class="muted" id="payroll-status"></p>
           <table class="data-table" id="payroll-table">
@@ -178,7 +191,10 @@
 
       <section id="view-inventory" class="view hidden">
         <div class="panel">
-          <h3>Warehouse Stock</h3>
+          <div class="panel-header">
+            <h3>Warehouse Stock</h3>
+            <button class="export-btn" data-table="inventory-table" data-filename="warehouse-stock">Export CSV</button>
+          </div>
           <table class="data-table" id="inventory-table">
             <thead><tr><th>Item</th><th>Quantity</th><th>Unit Value</th><th>Total Value</th></tr></thead>
             <tbody></tbody>
@@ -200,12 +216,15 @@
         <div class="panel">
           <div class="panel-header">
             <h3>Purchase Orders</h3>
-            <select class="month-filter" id="orders-filter">
-              <option value="">All months</option>
-              <option value="2026-06">June 2026</option>
-              <option value="2026-07">July 2026</option>
-              <option value="2026-08">August 2026</option>
-            </select>
+            <div class="panel-header-actions">
+              <select class="month-filter" id="orders-filter">
+                <option value="">All months</option>
+                <option value="2026-06">June 2026</option>
+                <option value="2026-07">July 2026</option>
+                <option value="2026-08">August 2026</option>
+              </select>
+              <button class="export-btn" data-table="orders-table" data-filename="purchase-orders">Export CSV</button>
+            </div>
           </div>
           <table class="data-table" id="orders-table">
             <thead><tr><th>Order #</th><th>Supplier</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
@@ -272,13 +291,14 @@
             <label>Provider</label>
             <select id="ai-provider">
               <option value="gemini">Google Gemini</option>
+              <option value="deepseek">DeepSeek</option>
               <option value="openai">OpenAI</option>
               <option value="anthropic">Anthropic Claude</option>
               <option value="azure-openai">Azure OpenAI</option>
             </select>
-            <p class="muted provider-note">Only Google Gemini is wired up server-side right now; the others are placeholders for future support.</p>
+            <p class="muted provider-note">Google Gemini, DeepSeek, OpenAI, and Anthropic Claude are all wired up server-side; Azure OpenAI is a placeholder for future support.</p>
             <label>Model</label>
-            <input type="text" id="ai-model" placeholder="e.g. gemini-3.6-flash" />
+            <input type="text" id="ai-model" placeholder="e.g. gemini-3.6-flash, deepseek-chat, gpt-4o, claude-sonnet-5" />
             <label>API key</label>
             <input type="password" id="ai-api-key" placeholder="Paste the provider's API key" required />
             <button type="submit">Save</button>
